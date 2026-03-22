@@ -213,6 +213,9 @@ Atom::Atom(LAMMPS *_lmp) : Pointers(_lmp)
   hgsph = nullptr;
   fracsph = nullptr;
   yeild = nullptr;
+  porosity = nullptr;
+  burnup = nullptr;
+  T0 = nullptr;
 
   // SPH package
 
@@ -577,6 +580,9 @@ void Atom::peratom_create()
   add_peratom("hgsph",&hgsph,DOUBLE,0);
   add_peratom("fracsph",&fracsph,DOUBLE,0);
   add_peratom("yeild",&yeild,DOUBLE,0);
+  add_peratom("porosity",&porosity,DOUBLE,0);
+  add_peratom("burnup",&burnup,DOUBLE,0);
+  add_peratom("T0",&T0,DOUBLE,0);
 
   // AMOEBA package
 
@@ -671,7 +677,7 @@ void Atom::set_atomflag_defaults()
   x0_flag = 0;
   smd_flag = damage_flag = 0;
   tsph_flag = rhosph_flag = pesph_flag = qsph_flag = cpsph_flag = ksph_flag = hgsph_flag = fracsph_flag = yeild_flag = 0;
-  starting_neighs_flag = youngs_flag = poissons_flag = linear_expansion_flag = 0;
+  starting_neighs_flag = youngs_flag = poissons_flag = linear_expansion_flag = porosity_flag = burnup_flag = T0_flag = 0;
   mesont_flag = 0;
   contact_radius_flag = smd_data_9_flag = smd_stress_flag = 0;
   eff_plastic_strain_flag = eff_plastic_strain_rate_flag = 0;
@@ -3014,6 +3020,9 @@ void *Atom::extract(const char *name)
   if (strcmp(name, "hgsph") == 0) return (void *) hgsph;
   if (strcmp(name, "fracsph") == 0) return (void *) fracsph;
   if (strcmp(name, "yeild") == 0) return (void *) yeild;
+  if (strcmp(name, "porosity") == 0) return (void *) porosity;
+  if (strcmp(name, "burnup") == 0) return (void *) burnup;
+  if (strcmp(name, "T0") == 0) return (void *) T0;
 
   
 
@@ -3151,6 +3160,9 @@ int Atom::extract_datatype(const char *name)
   if (strcmp(name, "hgsph") == 0) return LAMMPS_DOUBLE;
   if (strcmp(name, "fracsph") == 0) return LAMMPS_DOUBLE;
   if (strcmp(name, "yeild") == 0) return LAMMPS_DOUBLE;
+  if (strcmp(name, "porosity") == 0) return LAMMPS_DOUBLE;
+  if (strcmp(name, "burnup") == 0) return LAMMPS_DOUBLE;
+  if (strcmp(name, "T0") == 0) return LAMMPS_DOUBLE;
 
   // DPD-REACT package
 

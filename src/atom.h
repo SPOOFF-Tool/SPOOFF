@@ -154,6 +154,9 @@ class Atom : protected Pointers {
   double *eff_plastic_strain;
   double *eff_plastic_strain_rate;
   double *damage;
+
+  //SPOOFF
+
   double *starting_neighs;
   double *youngs;
   double *poissons;
@@ -168,6 +171,9 @@ class Atom : protected Pointers {
   double *hgsph;
   double *fracsph;
   double *yeild;
+  double *porosity;
+  double *burnup;
+  double *T0;
 
 
   // SPH package
@@ -223,7 +229,7 @@ class Atom : protected Pointers {
   //SPOOFF package
 
   int tsph_flag, rhosph_flag, pesph_flag, qsph_flag, cpsph_flag, ksph_flag, hgsph_flag, fracsph_flag, yeild_flag; 
-  int starting_neighs_flag, youngs_flag, poissons_flag, linear_expansion_flag;
+  int starting_neighs_flag, youngs_flag, poissons_flag, linear_expansion_flag, porosity_flag, burnup_flag, T0_flag;
 
   // AMOEBA package
 
