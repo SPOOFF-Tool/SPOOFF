@@ -76,6 +76,9 @@ AtomVecSPOOFF::AtomVecSPOOFF(LAMMPS *lmp) : AtomVec(lmp)
   atom->youngs_flag = 1;
   atom->poissons_flag = 1;
   atom->linear_expansion_flag = 1;
+  atom->porosity_flag = 1;
+  atom->burnup_flag = 1;
+  atom->T0_flag = 1;
   atom->eff_plastic_strain_rate_flag = 1;
 
   // strings with peratom variables to include in each AtomVec method
@@ -85,9 +88,9 @@ AtomVecSPOOFF::AtomVecSPOOFF(LAMMPS *lmp) : AtomVec(lmp)
 
   // clang-format off
   fields_grow = {"tsph","pesph","dpesph","qsph","cpsph","ksph","hgsph","fracsph","yeild","esph", "desph", "vfrac", "rmass", "rhosph", "x0", "radius", "contact_radius", "molecule",
-    "smd_data_9", "vest", "smd_stress", "eff_plastic_strain", "eff_plastic_strain_rate", "damage", "starting_neighs", "youngs", "poissons", "linear_expansion"};
+    "smd_data_9", "vest", "smd_stress", "eff_plastic_strain", "eff_plastic_strain_rate", "damage", "starting_neighs", "youngs", "poissons", "linear_expansion","porosity","burnup","T0"};
   fields_copy = {"tsph","pesph","qsph","cpsph","ksph","hgsph","fracsph","yeild","esph", "vfrac", "rmass", "rhosph", "x0", "radius", "contact_radius", "molecule",
-    "eff_plastic_strain", "eff_plastic_strain_rate", "vest", "smd_data_9", "smd_stress", "damage", "starting_neighs", "youngs", "poissons", "linear_expansion"};
+    "eff_plastic_strain", "eff_plastic_strain_rate", "vest", "smd_data_9", "smd_stress", "damage", "starting_neighs", "youngs", "poissons", "linear_expansion","porosity","burnup","T0"};
   fields_comm = {"radius", "vfrac", "vest", "esph","tsph","pesph","qsph","cpsph","ksph","hgsph","fracsph"};
   fields_comm_vel = {"radius", "vfrac", "vest", "esph","tsph","pesph","qsph","cpsph","ksph","hgsph","fracsph"};
   fields_reverse = {"desph","dpesph"};
@@ -96,11 +99,11 @@ AtomVecSPOOFF::AtomVecSPOOFF(LAMMPS *lmp) : AtomVec(lmp)
   fields_border_vel = {"x0", "molecule", "radius", "rmass", "rhosph", "vfrac", "contact_radius", "esph","qsph","cpsph","ksph","hgsph","fracsph","yeild",
     "eff_plastic_strain", "smd_data_9", "smd_stress", "vest"};
   fields_exchange = {"x0", "molecule", "radius", "rmass", "rhosph", "vfrac", "contact_radius", "esph","qsph","cpsph","ksph","hgsph","fracsph","yeild", 
-    "eff_plastic_strain", "eff_plastic_strain_rate", "smd_data_9", "smd_stress", "vest", "damage","tsph","pesph", "starting_neighs", "youngs", "poissons", "linear_expansion"};
+    "eff_plastic_strain", "eff_plastic_strain_rate", "smd_data_9", "smd_stress", "vest", "damage","tsph","pesph", "starting_neighs", "youngs", "poissons", "linear_expansion","porosity","burnup","T0"};
   fields_restart ={"x0", "molecule", "radius", "rmass", "rhosph", "vfrac", "contact_radius", "esph","qsph","cpsph","ksph","hgsph","fracsph","yeild",
-    "eff_plastic_strain", "eff_plastic_strain_rate", "smd_data_9", "smd_stress", "vest", "damage","tsph","pesph", "starting_neighs", "youngs", "poissons", "linear_expansion"};
+    "eff_plastic_strain", "eff_plastic_strain_rate", "smd_data_9", "smd_stress", "vest", "damage","tsph","pesph", "starting_neighs", "youngs", "poissons", "linear_expansion","porosity","burnup","T0"};
   fields_create = {"x0", "vest", "vfrac", "rmass", "rhosph", "radius", "contact_radius", "molecule","qsph","cpsph","ksph","hgsph","fracsph","yeild",
-    "esph", "eff_plastic_strain", "eff_plastic_strain_rate", "smd_data_9", "smd_stress", "damage","tsph","pesph", "starting_neighs", "youngs", "poissons", "linear_expansion"};
+    "esph", "eff_plastic_strain", "eff_plastic_strain_rate", "smd_data_9", "smd_stress", "damage","tsph","pesph", "starting_neighs", "youngs", "poissons", "linear_expansion","porosity","burnup","T0"};
   fields_data_atom = {"id", "type", "molecule", "vfrac", "rmass", "rhosph", "radius", "contact_radius",
     "x0", "x"};
   fields_data_vel = {"id", "v"};
@@ -148,6 +151,10 @@ void AtomVecSPOOFF::grow_pointers()
   youngs = atom->youngs;
   poissons = atom->poissons;
   linear_expansion = atom->linear_expansion;
+  rhosph = atom->rhosph;
+  porosity = atom->porosity;
+  burnup = atom->burnup;
+  T0 = atom->T0;
 }
 
 /* ----------------------------------------------------------------------
@@ -212,6 +219,10 @@ void AtomVecSPOOFF::data_atom_post(int ilocal)
   youngs[ilocal] = 1.0;
   poissons[ilocal] = 0.0;
   linear_expansion[ilocal] = 0.0;
+  rhosph[ilocal] = 1.0;
+  porosity[ilocal] = 1.0;
+  burnup[ilocal] = 0.0;
+  T0[ilocal] = 0.0;
 
   eff_plastic_strain[ilocal] = 0.0;
   eff_plastic_strain_rate[ilocal] = 0.0;

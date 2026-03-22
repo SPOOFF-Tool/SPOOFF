@@ -185,7 +185,6 @@ void FixSPOOFFSetPoissons::post_force(int /*vflag*/)
   double **vest = atom->vest;
   int *mask = atom->mask;
   int nlocal = atom->nlocal;
-  double porosity = 1; //hardcoded for now
 
   // update region if necessary
 

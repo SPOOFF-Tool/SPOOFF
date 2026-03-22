@@ -30,6 +30,7 @@
  ------------------------------------------------------------------------- */
 
 #include "fix_spooff_setlinearexpansion.h"
+#include "pair_spooff_tlsph.h"
 
 #include "atom.h"
 #include "domain.h"
@@ -155,6 +156,8 @@ void FixSPOOFFSetLinearExpansion::init()
     if (estyle == CONSTANT && scale != 0.0) flag = 1;
   }
   if (flag) error->all(FLERR, "Cannot use non-zero forces in an energy minimization");
+
+
 }
 
 /* ---------------------------------------------------------------------- */
@@ -186,7 +189,7 @@ void FixSPOOFFSetLinearExpansion::post_force(int /*vflag*/)
   double **vest = atom->vest;
   int *mask = atom->mask;
   int nlocal = atom->nlocal;
-  double porosity = 1; //hardcoded for now
+  double *T0 = atom->T0;
 
   // update region if necessary
 
@@ -209,13 +212,13 @@ void FixSPOOFFSetLinearExpansion::post_force(int /*vflag*/)
           if(ktype==0){
             linear_expansion[i] = scale;
           }else if(ktype==1){
-            linear_expansion[i] = 7.107E-6 + 2*2.581E-9*tsph[i] + 3*1.140E-13*pow(tsph[i],2);  //UO2 (differentiated from Matpro)
+            linear_expansion[i] = ((-4.972E-4 + 7.107E-6*tsph[i] + 2.581E-9*pow(tsph[i],2) + 1.140E-13*pow(tsph[i],3))-(-4.972E-4 + 7.107E-6*T0[i] + 2.581E-9*pow(T0[i],2) + 1.140E-13*pow(T0[i],3)))/(tsph[i] - T0[i]);  //UO2 ( from Matpro)
             
           }else if(ktype==2){
             if(tsph[i]<1073){
-              linear_expansion[i] = 4.44E-6; //Zircalloy (differentiated from Matpro - taken as the axial strain change)
+              linear_expansion[i] = ((4.44E-6*tsph[i] - 1.24E-3)-(4.44E-6*T0[i] - 1.24E-3))/(tsph[i] - T0[i]); //Zircalloy ( from Matpro - taken as the axial strain change)
             }else{
-              linear_expansion[i] = 9.7E-6; //Zircalloy (differentiated from Matpro - taken as the axial strain change)
+              linear_expansion[i] = ((9.7E-6*tsph[i] - 1.1E-2)-(9.7E-6*T0[i] - 1.1E-2))/(tsph[i] - T0[i]); //Zircalloy ( from Matpro - taken as the axial strain change)
             }
           }          
         }
@@ -242,28 +245,28 @@ void FixSPOOFFSetLinearExpansion::post_force(int /*vflag*/)
           if(ktype==0){
             linear_expansion[i] = scale;
           }else if(ktype==1){
-            linear_expansion[i] = 7.107E-6 + 2*2.581E-9*tsph[i] + 3*1.140E-13*pow(tsph[i],2);  //UO2 (differentiated from Matpro)
+            linear_expansion[i] = ((-4.972E-4 + 7.107E-6*tsph[i] + 2.581E-9*pow(tsph[i],2) + 1.140E-13*pow(tsph[i],3))-(-4.972E-4 + 7.107E-6*T0[i] + 2.581E-9*pow(T0[i],2) + 1.140E-13*pow(T0[i],3)))/(tsph[i] - T0[i]);  //UO2 ( from Matpro)
             
           }else if(ktype==2){
             if(tsph[i]<1073){
-              linear_expansion[i] = 4.44E-6; //Zircalloy (differentiated from Matpro - taken as the axial strain change)
+              linear_expansion[i] = ((4.44E-6*tsph[i] - 1.24E-3)-(4.44E-6*T0[i] - 1.24E-3))/(tsph[i] - T0[i]); //Zircalloy ( from Matpro - taken as the axial strain change)
             }else{
-              linear_expansion[i] = 9.7E-6; //Zircalloy (differentiated from Matpro - taken as the axial strain change)
+              linear_expansion[i] = ((9.7E-6*tsph[i] - 1.1E-2)-(9.7E-6*T0[i] - 1.1E-2))/(tsph[i] - T0[i]); //Zircalloy ( from Matpro - taken as the axial strain change)
             }
-          }    
+          }  
         } else if (estyle) {
           if(ktype==0){
             linear_expansion[i] = scale;
           }else if(ktype==1){
-            linear_expansion[i] = 7.107E-6 + 2*2.581E-9*tsph[i] + 3*1.140E-13*pow(tsph[i],2);  //UO2 (differentiated from Matpro)
+            linear_expansion[i] = ((-4.972E-4 + 7.107E-6*tsph[i] + 2.581E-9*pow(tsph[i],2) + 1.140E-13*pow(tsph[i],3))-(-4.972E-4 + 7.107E-6*T0[i] + 2.581E-9*pow(T0[i],2) + 1.140E-13*pow(T0[i],3)))/(tsph[i] - T0[i]);  //UO2 ( from Matpro)
             
           }else if(ktype==2){
             if(tsph[i]<1073){
-              linear_expansion[i] = 4.44E-6; //Zircalloy (differentiated from Matpro - taken as the axial strain change)
+              linear_expansion[i] = ((4.44E-6*tsph[i] - 1.24E-3)-(4.44E-6*T0[i] - 1.24E-3))/(tsph[i] - T0[i]); //Zircalloy ( from Matpro - taken as the axial strain change)
             }else{
-              linear_expansion[i] = 9.7E-6; //Zircalloy (differentiated from Matpro - taken as the axial strain change)
+              linear_expansion[i] = ((9.7E-6*tsph[i] - 1.1E-2)-(9.7E-6*T0[i] - 1.1E-2))/(tsph[i] - T0[i]); //Zircalloy ( from Matpro - taken as the axial strain change)
             }
-          }      
+          }     
         }
       }
   }

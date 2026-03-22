@@ -1,6 +1,11 @@
-Smooth Mach Dynamics -- Smooth Particle Hydrodynamics for solids and fluids
+Smoothed Particle Open-source in-Operation Fuel Fragmentation (SPOOF) package 
+with thermal pair style and thermal induced stresses added as well as property 
+models for fuel and cladding materials. All added ontop of the SMD package 
+and sperated into its own package.
 
-Currently, the package has the following features:
+Smooth Mach Dynamics (SMD) -- Smooth Particle Hydrodynamics for solids and fluids
+
+Currently, the package has the following features from MACHDYN:
 
 Does liquids via traditional Smooth Particle Hydrodynamics (SPH)
 
@@ -17,11 +22,15 @@ models.
 Rigid boundary conditions (walls) can be loaded as surface geometries
 from *.STL files.
 
-See the file doc/PDF/SPOOFF_LAMMPS_userguide.pdf to get started.
+See the file doc/PDF/MACHDYN_LAMMPS_userguide.pdf to get started.
+From ther review the SPOOFF user guide on github.
 
 There are example scripts for using this package in examples/PACKAGES/machdyn.
-The person who created this package is Georg Ganzenmuller at the
+The person who created the MACHDYN package is Georg Ganzenmuller at the
 Fraunhofer-Institute for High-Speed Dynamics, Ernst Mach Institute in
 Germany (georg.ganzenmueller at emi.fhg.de).  Contact him directly if
 you have questions.
+
+SPOOFF is a modification whose lead creator is Matthew Horton at UKNNL.
+Contact him directly if you have questions.
 

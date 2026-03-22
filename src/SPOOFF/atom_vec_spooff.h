@@ -53,7 +53,7 @@ class AtomVecSPOOFF : virtual public AtomVec {
  private:
   tagint *molecule;
   double *tsph, *rhosph, *pesph, *dpesph, **qsph, *cpsph, *ksph, *hgsph, *fracsph, *yeild, *esph, *desph, *vfrac, *rmass, *radius, *contact_radius;
-  double *eff_plastic_strain, *eff_plastic_strain_rate, *damage, *starting_neighs, *youngs, *poissons, *linear_expansion;
+  double *eff_plastic_strain, *eff_plastic_strain_rate, *damage, *starting_neighs, *youngs, *poissons, *linear_expansion, *porosity, *burnup, *T0;
   double **x0, **smd_data_9, **smd_stress, **vest;
 };
 

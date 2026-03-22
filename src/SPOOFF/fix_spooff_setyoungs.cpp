@@ -186,7 +186,7 @@ void FixSPOOFFSetYoungs::post_force(int /*vflag*/)
   double **vest = atom->vest;
   int *mask = atom->mask;
   int nlocal = atom->nlocal;
-  double porosity = 1; //hardcoded for now
+  double *porosity = atom->porosity;
 
   // update region if necessary
 
@@ -209,7 +209,7 @@ void FixSPOOFFSetYoungs::post_force(int /*vflag*/)
           if(ktype==0){
             youngs[i] = scale;
           }else if(ktype==1){
-              youngs[i] = scale*2.334E11*(1-(2.752*(1-porosity)))*(1-(1.0915E-4 * tsph[i]));  //UO2
+              youngs[i] = scale*2.334E11*(1-(2.752*(1-porosity[i])))*(1-(1.0915E-4 * tsph[i]));  //UO2
           }else if(ktype==2){
             youngs[i] = scale*(9.21E11 - (4.05E7*tsph[i])); //Zircalloy Beta Phase
           }          
@@ -237,7 +237,7 @@ void FixSPOOFFSetYoungs::post_force(int /*vflag*/)
           if(ktype==0){
             youngs[i] = scale;
           }else if(ktype==1){
-              youngs[i] = scale*2.334E11*(1-(2.752*(1-porosity)))*(1-(1.0915E-4 * tsph[i]));  //UO2
+              youngs[i] = scale*2.334E11*(1-(2.752*(1-porosity[i])))*(1-(1.0915E-4 * tsph[i]));  //UO2
           }else if(ktype==2){
             youngs[i] = scale*(9.21E11 - (4.05E7*tsph[i])); //Zircalloy Beta Phase
           }   
@@ -245,7 +245,7 @@ void FixSPOOFFSetYoungs::post_force(int /*vflag*/)
           if(ktype==0){
             youngs[i] = scale;
           }else if(ktype==1){
-              youngs[i] = scale*2.334E11*(1-(2.752*(1-porosity)))*(1-(1.0915E-4 * tsph[i]));  //UO2
+              youngs[i] = scale*2.334E11*(1-(2.752*(1-porosity[i])))*(1-(1.0915E-4 * tsph[i]));  //UO2
           }else if(ktype==2){
             youngs[i] = scale*(9.21E11 - (4.05E7*tsph[i])); //Zircalloy Beta Phase
           }    

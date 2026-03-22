@@ -186,7 +186,7 @@ void FixSPOOFFSetConductivity::post_force(int /*vflag*/)
   double **vest = atom->vest;
   int *mask = atom->mask;
   int nlocal = atom->nlocal;
-  double porosity = 1; //hardcoded for now
+  double *porosity = atom->porosity;
 
   // update region if necessary
 
@@ -210,11 +210,11 @@ void FixSPOOFFSetConductivity::post_force(int /*vflag*/)
             ksph[i] = scale;
           }else if(ktype==1){
             if(tsph[i]<(1650+273)){
-              ksph[i] = scale*porosity*100*((40.4/(464+(tsph[i]-273))) + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));  //100 factor to change to W/mK standard
+              ksph[i] = scale*porosity[i]*100*((40.4/(464+(tsph[i]-273))) + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));  //100 factor to change to W/mK standard
             }else if(tsph[i]<(2840+273)){
-              ksph[i] = scale*porosity*100*(0.0191 + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));;  //100 factor to change to W/mK standard
+              ksph[i] = scale*porosity[i]*100*(0.0191 + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));;  //100 factor to change to W/mK standard
             }else{
-              ksph[i] = scale*porosity*0.04351656;
+              ksph[i] = scale*porosity[i]*0.04351656;
             }
           }else if(ktype==2){
             ksph[i] = scale*(7.51 + 2.09e-2*(tsph[i]-273) -1.45e-5*pow((tsph[i]-273),2) + 7.67e-9*pow((tsph[i]-273),3));
@@ -244,11 +244,11 @@ void FixSPOOFFSetConductivity::post_force(int /*vflag*/)
             ksph[i] = scale;
           }else if(ktype==1){
             if(tsph[i]<(1650+273)){
-              ksph[i] = scale*porosity*100*((40.4/(464+(tsph[i]-273))) + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));  //100 factor to change to W/mK standard
+              ksph[i] = scale*porosity[i]*100*((40.4/(464+(tsph[i]-273))) + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));  //100 factor to change to W/mK standard
             }else if(tsph[i]<(2840+273)){
-              ksph[i] = scale*porosity*100*(0.0191 + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));;  //100 factor to change to W/mK standard
+              ksph[i] = scale*porosity[i]*100*(0.0191 + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));;  //100 factor to change to W/mK standard
             }else{
-              ksph[i] = scale*porosity*0.04351656;
+              ksph[i] = scale*porosity[i]*0.04351656;
             }
           }else if(ktype==2){
             ksph[i] = scale*(7.51 + 2.09e-2*(tsph[i]-273) -1.45e-5*pow((tsph[i]-273),2) + 7.67e-9*pow((tsph[i]-273),3));
@@ -258,11 +258,11 @@ void FixSPOOFFSetConductivity::post_force(int /*vflag*/)
             ksph[i] = scale;
           }else if(ktype==1){
             if(tsph[i]<(1650+273)){
-              ksph[i] = scale*porosity*100*((40.4/(464+(tsph[i]-273))) + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));  //100 factor to change to W/mK standard
+              ksph[i] = scale*porosity[i]*100*((40.4/(464+(tsph[i]-273))) + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));  //100 factor to change to W/mK standard
             }else if(tsph[i]<(2840+273)){
-              ksph[i] = scale*porosity*100*(0.0191 + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));;  //100 factor to change to W/mK standard
+              ksph[i] = scale*porosity[i]*100*(0.0191 + 1.216e-4*exp(1.867e-3*(tsph[i]-273)));;  //100 factor to change to W/mK standard
             }else{
-              ksph[i] = scale*porosity*0.04351656;
+              ksph[i] = scale*porosity[i]*0.04351656;
             }
           }else if(ktype==2){
             ksph[i] = scale*(7.51 + 2.09e-2*(tsph[i]-273) -1.45e-5*pow((tsph[i]-273),2) + 7.67e-9*pow((tsph[i]-273),3));

@@ -190,7 +190,7 @@ void FixSPOOFFSetYeild::post_force(int /*vflag*/)
   double **vest = atom->vest;
   int *mask = atom->mask;
   int nlocal = atom->nlocal;
-  double porosity = 1; //hardcoded for now
+  double *porosity = atom->porosity;
   double r;
 
   // update region if necessary
@@ -215,9 +215,9 @@ void FixSPOOFFSetYeild::post_force(int /*vflag*/)
             yeild[i] = scale;
           }else if(ktype==1){
             if(tsph[i]<1000){
-              yeild[i] = scale*1.7E8*sqrt(1-(2.62*(1-porosity)))*exp(-1590/(8.314*tsph[i]));
+              yeild[i] = scale*1.7E8*sqrt(1-(2.62*(1-porosity[i])))*exp(-1590/(8.314*tsph[i]));
             }else{
-              yeild[i] = scale*1.7E8*sqrt(1-(2.62*(1-porosity)))*exp(-1590/(8.314*1000));
+              yeild[i] = scale*1.7E8*sqrt(1-(2.62*(1-porosity[i])))*exp(-1590/(8.314*1000));
             }
           }else if(ktype==2){
             if(tsph[i]<1080){
@@ -256,9 +256,9 @@ void FixSPOOFFSetYeild::post_force(int /*vflag*/)
             yeild[i] = scale;
           }else if(ktype==1){
             if(tsph[i]<1000){
-              yeild[i] = scale*1.7E8*sqrt(1-(2.62*porosity))*exp(-1590/(8.314*tsph[i]));
+              yeild[i] = scale*1.7E8*sqrt(1-(2.62*porosity[i]))*exp(-1590/(8.314*tsph[i]));
             }else{
-              yeild[i] = scale*1.7E8*sqrt(1-(2.62*porosity))*exp(-1590/(8.314*1000));
+              yeild[i] = scale*1.7E8*sqrt(1-(2.62*porosity[i]))*exp(-1590/(8.314*1000));
             }
           }else if(ktype==2){
             if(tsph[i]<1080){
@@ -277,9 +277,9 @@ void FixSPOOFFSetYeild::post_force(int /*vflag*/)
             yeild[i] = scale;
           }else if(ktype==1){
             if(tsph[i]<1000){
-              yeild[i] = scale*1.7E8*sqrt(1-(2.62*porosity))*exp(-1590/(8.314*tsph[i]));
+              yeild[i] = scale*1.7E8*sqrt(1-(2.62*porosity[i]))*exp(-1590/(8.314*tsph[i]));
             }else{
-              yeild[i] = scale*1.7E8*sqrt(1-(2.62*porosity))*exp(-1590/(8.314*1000));
+              yeild[i] = scale*1.7E8*sqrt(1-(2.62*porosity[i]))*exp(-1590/(8.314*1000));
             }
           }else if(ktype==2){
             if(tsph[i]<1080){

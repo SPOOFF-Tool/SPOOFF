@@ -24,22 +24,21 @@
 
 #ifdef FIX_CLASS
 // clang-format off
-FixStyle(spooff/setlinearexpansion,FixSPOOFFSetLinearExpansion);
+FixStyle(spooff/setreferencetemp,FixSPOOFFSetReferencetemp);
 // clang-format on
 #else
 
-#ifndef LMP_FIX_SPOOFF_SETLINEAREXPANSION_H
-#define LMP_FIX_SPOOFF_SETLINEAREXPANSION_H
+#ifndef LMP_FIX_SPOOFF_SETREFERENCETEMP_H
+#define LMP_FIX_SPOOFF_SETREFERENCETEMP_H
 
 #include "fix.h"
 
-
 namespace LAMMPS_NS {
 
-class FixSPOOFFSetLinearExpansion : public Fix {
+class FixSPOOFFSetReferencetemp : public Fix {
  public:
-  FixSPOOFFSetLinearExpansion(class LAMMPS *, int, char **);
-  ~FixSPOOFFSetLinearExpansion() override;
+  FixSPOOFFSetReferencetemp(class LAMMPS *, int, char **);
+  ~FixSPOOFFSetReferencetemp() override;
   int setmask() override;
   void init() override;
   void setup(int) override;

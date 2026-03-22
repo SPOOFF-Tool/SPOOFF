@@ -29,7 +29,7 @@
  See the README file in the top-level LAMMPS directory.
  ------------------------------------------------------------------------- */
 
-#include "fix_spooff_setheatgen.h"
+#include "fix_spooff_setburnup.h"
 
 #include "atom.h"
 #include "domain.h"
@@ -50,11 +50,11 @@ enum { NONE, CONSTANT, EQUAL, ATOM };
 
 /* ---------------------------------------------------------------------- */
 
-FixSPOOFFSetHeatGen::FixSPOOFFSetHeatGen(LAMMPS *lmp, int narg, char **arg) :
+FixSPOOFFSetBurnup::FixSPOOFFSetBurnup(LAMMPS *lmp, int narg, char **arg) :
     Fix(lmp, narg, arg), estr(nullptr), idregion(nullptr),
     region(nullptr), sforce(nullptr)
 {
-  if (narg < 5) error->all(FLERR, "Illegal fix setheatgen command");
+  if (narg < 5) error->all(FLERR, "Illegal fix setburnup command");
 
   dynamic_group_allow = 1;
   vector_flag = 1;
@@ -64,12 +64,12 @@ FixSPOOFFSetHeatGen::FixSPOOFFSetHeatGen(LAMMPS *lmp, int narg, char **arg) :
 
   if (strstr(arg[3], "v_") == arg[3]) {
     estr = utils::strdup(&arg[3][2]);
-    ktype = utils::numeric(FLERR, arg[4], false, lmp);  //different heatgen types are currently: 0 constant,other types could be used for changing heat gen with radiation history
+    ktype = utils::numeric(FLERR, arg[4], false, lmp);  //different burnup types are currently: 0 constant, 
   } else if (strcmp(arg[3], "NULL") == 0) {
     estyle = NONE;
   } else {
     scale = utils::numeric(FLERR, arg[3], false, lmp);
-    ktype = utils::numeric(FLERR, arg[4], false, lmp);  //different heatgen types are currently: 0 constant,other types could be used for changing heat gen with radiation history
+    ktype = utils::numeric(FLERR, arg[4], false, lmp);  //different burnup types are currently: 0 constant, 
     estyle = CONSTANT;
   }
 
@@ -80,25 +80,25 @@ FixSPOOFFSetHeatGen::FixSPOOFFSetHeatGen(LAMMPS *lmp, int narg, char **arg) :
   int iarg = 6;
   while (iarg < narg) {
     if (strcmp(arg[iarg], "region") == 0) {
-      if (iarg + 2 > narg) error->all(FLERR, "Illegal fix setheatgen command");
+      if (iarg + 2 > narg) error->all(FLERR, "Illegal fix setburnup command");
       region = domain->get_region_by_id(arg[iarg + 1]);
-      if (!region) error->all(FLERR, "Region {} for fix setheatgen does not exist", arg[iarg + 1]);
+      if (!region) error->all(FLERR, "Region {} for fix setburnup does not exist", arg[iarg + 1]);
       idregion = utils::strdup(arg[iarg + 1]);
       iarg += 2;
     } else
-      error->all(FLERR, "Illegal fix setheatgen command");
+      error->all(FLERR, "Illegal fix setburnup command");
   }
 
   force_flag = 0;
   foriginal[0] = foriginal[1] = foriginal[2] = 0.0;
 
   maxatom = atom->nmax;
-  memory->create(sforce, maxatom, 3, "setheatgen:sforce");
+  memory->create(sforce, maxatom, 3, "setburnup:sforce");
 }
 
 /* ---------------------------------------------------------------------- */
 
-FixSPOOFFSetHeatGen::~FixSPOOFFSetHeatGen()
+FixSPOOFFSetBurnup::~FixSPOOFFSetBurnup()
 {
   delete[] estr;
   delete[] idregion;
@@ -107,7 +107,7 @@ FixSPOOFFSetHeatGen::~FixSPOOFFSetHeatGen()
 
 /* ---------------------------------------------------------------------- */
 
-int FixSPOOFFSetHeatGen::setmask()
+int FixSPOOFFSetBurnup::setmask()
 {
   int mask = 0;
   mask |= POST_FORCE;
@@ -116,19 +116,19 @@ int FixSPOOFFSetHeatGen::setmask()
 
 /* ---------------------------------------------------------------------- */
 
-void FixSPOOFFSetHeatGen::init()
+void FixSPOOFFSetBurnup::init()
 {
   // check variables
 
   if (estr) {
     evar = input->variable->find(estr);
-    if (evar < 0) error->all(FLERR, "Variable name for fix setheatgen does not exist");
+    if (evar < 0) error->all(FLERR, "Variable name for fix setburnup does not exist");
     if (input->variable->equalstyle(evar))
       estyle = EQUAL;
     else if (input->variable->atomstyle(evar))
       estyle = ATOM;
     else
-      error->all(FLERR, "Variable for fix setheatgen is invalid style");
+      error->all(FLERR, "Variable for fix setburnup is invalid style");
   }
   
 
@@ -136,7 +136,7 @@ void FixSPOOFFSetHeatGen::init()
 
   if (idregion) {
     region = domain->get_region_by_id(idregion);
-    if (!region) error->all(FLERR, "Region {} for fix setheatgen does not exist", idregion);
+    if (!region) error->all(FLERR, "Region {} for fix setburnup does not exist", idregion);
   }
 
   if (estyle == ATOM)
@@ -159,29 +159,29 @@ void FixSPOOFFSetHeatGen::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixSPOOFFSetHeatGen::setup(int vflag)
+void FixSPOOFFSetBurnup::setup(int vflag)
 {
   if (utils::strmatch(update->integrate_style, "^verlet"))
     post_force(vflag);
   else
-    error->all(FLERR, "Fix spooff/setheatgen does not support RESPA");
+    error->all(FLERR, "Fix spooff/setburnup does not support RESPA");
 }
 
 /* ---------------------------------------------------------------------- */
 
-void FixSPOOFFSetHeatGen::min_setup(int vflag)
+void FixSPOOFFSetBurnup::min_setup(int vflag)
 {
   post_force(vflag);
 }
 
 /* ---------------------------------------------------------------------- */
 
-void FixSPOOFFSetHeatGen::post_force(int /*vflag*/)
+void FixSPOOFFSetBurnup::post_force(int /*vflag*/)
 {
   double **x = atom->x;
   double **f = atom->f;
   double **v = atom->v;
-  double *hgsph = atom->hgsph;
+  double *burnup = atom->burnup;
   double *tsph = atom->tsph;
   double **vest = atom->vest;
   int *mask = atom->mask;
@@ -196,7 +196,7 @@ void FixSPOOFFSetHeatGen::post_force(int /*vflag*/)
   if (varflag == ATOM && atom->nmax > maxatom) {
     maxatom = atom->nmax;
     memory->destroy(sforce);
-    memory->create(sforce, maxatom, 3, "setheatgen:sforce");
+    memory->create(sforce, maxatom, 3, "setburnup:sforce");
   }
 
 
@@ -206,11 +206,11 @@ void FixSPOOFFSetHeatGen::post_force(int /*vflag*/)
         if (region && !region->match(x[i][0], x[i][1], x[i][2])) continue;
         if (estyle) {
           if(ktype==0){
-            hgsph[i] = scale;
+            burnup[i] = scale;
           }else if(ktype==1){
-            //currently not implemented
+              error->all(FLERR, "Burnup mode 1 not set yet");
           }else if(ktype==2){
-            //currently not implemented
+            error->all(FLERR, "Burnup mode 2 not set yet");
           }          
         }
       }
@@ -234,20 +234,20 @@ void FixSPOOFFSetHeatGen::post_force(int /*vflag*/)
         if (region && !region->match(x[i][0], x[i][1], x[i][2])) continue;
         if (estyle == ATOM) {
           if(ktype==0){
-            hgsph[i] = scale;
+            burnup[i] = scale;
           }else if(ktype==1){
-            //currently not implemented
+              error->all(FLERR, "Burnup mode 1 not set yet");
           }else if(ktype==2){
-            //currently not implemented
+            error->all(FLERR, "Burnup mode 2 not set yet");
           }   
         } else if (estyle) {
           if(ktype==0){
-            hgsph[i] = scale;
+            burnup[i] = scale;
           }else if(ktype==1){
-            //currently not implemented
+              error->all(FLERR, "Burnup mode 1 not set yet");
           }else if(ktype==2){
-            //currently not implemented
-          }     
+            error->all(FLERR, "Burnup mode 2 not set yet");
+          }    
         }
       }
   }
@@ -257,7 +257,7 @@ void FixSPOOFFSetHeatGen::post_force(int /*vflag*/)
  return components of total force on fix group before force was changed
  ------------------------------------------------------------------------- */
 
-double FixSPOOFFSetHeatGen::compute_vector(int n)
+double FixSPOOFFSetBurnup::compute_vector(int n)
 {
   // only sum across procs one time
 
@@ -272,7 +272,7 @@ double FixSPOOFFSetHeatGen::compute_vector(int n)
  memory usage of local atom-based array
  ------------------------------------------------------------------------- */
 
-double FixSPOOFFSetHeatGen::memory_usage()
+double FixSPOOFFSetBurnup::memory_usage()
 {
   double bytes = 0.0;
   if (varflag == ATOM) bytes = atom->nmax * 3 * sizeof(double);
