@@ -1,0 +1,35 @@
+get ubuntu
+get ovito
+
+download lammps 02Aug2023
+https://github.com/lammps/lammps/releases/tag/stable_2Aug2023_update4
+Unpack tar:
+tar -xzvf lammps*.tar.gz
+
+download spooff:
+https://github.com/mhorton7882/SPOOFF/tree/main
+
+copy lib/spooff into lammps-2Aug2023\lib\spooff
+
+enter lammps-2Aug2023\lib\spooff
+
+download eigen3
+wget https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz
+Unpack tar:
+tar -xf eigen-3.4.0.tar.gz
+
+link to src:
+ln -s ./eigen-3.4.0 includelink
+
+MPI Install compiler commands:
+sudo apt update
+sudo apt install openmpi-bin openmpi-common libopenmpi-dev
+
+Install g++ compiler:
+sudo apt-get update
+sudo apt-get install g++
+
+within src folder:
+make yes-sph
+make yes-spooff
+make mpi
