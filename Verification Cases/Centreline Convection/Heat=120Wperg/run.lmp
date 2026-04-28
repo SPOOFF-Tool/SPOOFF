@@ -19,7 +19,7 @@ variable HM equal 0 # heat per unit mass   mm2/s3
 dimension 2
 units si
 boundary sm sm p # simulation box boundaries
-atom_style smd
+atom_style spooff
 atom_modify map array
 comm_modify vel yes
 neigh_modify every 100 delay 0 check yes # re-build neighbor list every 10 steps
@@ -59,60 +59,60 @@ set group all smd/mass/density ${rho}
 set group all diameter ${h} # set SPH kernel radius
 set group all sph/e ${energy}
 
-fix temp_outer_fix outer smd/setconvection 3E7 300 region outer
-fix k_fuel_fix fuel smd/setconductivity 1E6 1
-fix cp_fuel_fix fuel smd/setspecificheat 1E6 1
-fix k_cladding_fix cladding smd/setconductivity 1E6 2
-fix cp_cladding_fix cladding smd/setspecificheat 1E6 2
-#fix k_outer_fix_boundary outer smd/setconductivity 1E6 0
-fix Hg_fuel fuel smd/setheatgen 1.2E11 0
+fix temp_outer_fix outer spooff/setconvection 3E7 300 region outer
+fix k_fuel_fix fuel spooff/setconductivity 1E6 1
+fix cp_fuel_fix fuel spooff/setspecificheat 1E6 1
+fix k_cladding_fix cladding spooff/setconductivity 1E6 2
+fix cp_cladding_fix cladding spooff/setspecificheat 1E6 2
+#fix k_outer_fix_boundary outer spooff/setconductivity 1E6 0
+fix Hg_fuel fuel spooff/setheatgen 1.2E11 0
 
 
 ####################################################################################################
 # INTERACTION PHYSICS / MATERIAL MODEL
 ####################################################################################################
-pair_style smd/tlsph
+pair_style spooff/tlsph
 pair_coeff 1 1 *COMMON ${rho} ${E} ${nu} ${q1} ${q2} ${hg} ${cp} ${k} ${HM} &
 *STRENGTH_LINEAR &
 *EOS_THERMAL ${T0} ${alpha} &
 *FAILURE_MAX_PAIRWISE_STRAIN ${EF} &
 *END
 
-#pair_style hybrid/overlay smd/hertz 1.5 smd/tlsph
-#pair_coeff 1 1 smd/hertz 10
-#pair_coeff 1 1 smd/tlsph *COMMON ${rho} ${E} ${nu} ${q1} ${q2} ${hg} ${cp} ${k} ${HM} &
+#pair_style hybrid/overlay spooff/hertz 1.5 spooff/tlsph
+#pair_coeff 1 1 spooff/hertz 10
+#pair_coeff 1 1 spooff/tlsph *COMMON ${rho} ${E} ${nu} ${q1} ${q2} ${hg} ${cp} ${k} ${HM} &
 #*STRENGTH_LINEAR &
 #*EOS_THERMAL ${T0} ${alpha} &
 #*FAILURE_MAX_PAIRWISE_STRAIN ${EF} &
 #*END
-#pair_coeff 2 1 smd/hertz 10
-#pair_coeff 2 2 smd/hertz 10
+#pair_coeff 2 1 spooff/hertz 10
+#pair_coeff 2 2 spooff/hertz 10
 
 
 
 ####################################################################################################
 # TIME INTEGRATION
 ####################################################################################################
-#fix dtfix tlsph smd/adjust_dt 0.01 # dynamically adjust time increment every step   - I turned this off as it doesn't account for the temperature time step limit.
-fix integration_fix tlsph smd/integrate_tlsph
+#fix dtfix tlsph spooff/adjust_dt 0.01 # dynamically adjust time increment every step   - I turned this off as it doesn't account for the temperature time step limit.
+fix integration_fix tlsph spooff/integrate_tlsph
 ####################################################################################################
 # SPECIFY TRAJECTORY OUTPUT
 ####################################################################################################
-compute S all smd/tlsph/stress_cylindrical  # Cauchy stress tensor
-compute E all smd/tlsph/strain_cylindrical # Green-Lagrange strain tensor
-compute nn all smd/tlsph/num/neighs # number of neighbors for each particle
-compute e all smd/internal/energy
-compute conr all smd/contact/radius
-compute dam all smd/damage
-compute t all smd/temperature 
-compute Q all smd/heatflux_cylindrical 
-compute vol all smd/vol
-compute rho all smd/rho
-compute r all smd/cylindrical 
+compute S all spooff/tlsph/stress_cylindrical  # Cauchy stress tensor
+compute E all spooff/tlsph/strain_cylindrical # Green-Lagrange strain tensor
+compute nn all spooff/tlsph/num/neighs # number of neighbors for each particle
+compute e all spooff/internal/energy
+
+compute dam all spooff/damage
+compute t all spooff/temperature 
+compute Q all spooff/heatflux_cylindrical 
+compute vol all spooff/vol
+compute rho all spooff/rho
+compute r all spooff/cylindrical 
 dump dump_id all custom 100 dump.LAMMPS id type x y z vx vy vz &
 c_S[1] c_S[2] c_S[4] c_nn &
 c_E[1] c_E[2] c_E[4] &
-c_e c_conr c_dam c_t &
+c_e c_dam[1] c_t &
 c_r[1] c_r[2] c_r[3] &
 c_Q[1] c_Q[2] c_Q[3] c_vol c_rho
 dump_modify dump_id first yes

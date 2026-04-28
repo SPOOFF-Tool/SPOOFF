@@ -82,7 +82,7 @@ compute S all spooff/tlsph/stress # Cauchy stress tensor
 compute E all spooff/tlsph/strain # Green-Lagrange strain tensor
 compute nn all spooff/tlsph/num/neighs # number of neighbors for each particle
 compute e all spooff/internal/energy
-compute conr all spooff/contact/radius
+
 compute dam all spooff/damage
 compute t all spooff/temperature 
 compute k all spooff/conductivity 
@@ -90,7 +90,7 @@ compute Q all spooff/heatflux
 dump dump_id all custom 1000 dump.LAMMPS id type x y z vx vy vz &
 c_S[1] c_S[2] c_S[4] c_nn &
 c_E[1] c_E[2] c_E[4] &
-c_e c_conr c_dam[1] c_t &
+c_e c_dam[1] c_t &
 c_Q[1] c_Q[2] c_Q[3]
 dump_modify dump_id first yes
 

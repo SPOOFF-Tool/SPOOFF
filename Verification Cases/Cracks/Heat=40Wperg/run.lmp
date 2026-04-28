@@ -80,7 +80,7 @@ compute E all spooff/tlsph/strain_cylindrical # Green-Lagrange strain tensor - c
 compute nn all spooff/tlsph/num/neighs # number of neighbors for each particle
 compute e all spooff/internal/energy #internal thermal energy
 compute r all spooff/cylindrical #cylindrical co-ords r theta z
-compute conr all spooff/contact/radius # particle contact radius
+ # particle contact radius
 compute rho all spooff/rho # density (doesn't update)
 compute vol all spooff/vol # particle volume (doesn't update)
 compute dam all spooff/damage # Calculates 4 damage values:
@@ -100,7 +100,7 @@ c_S[1] c_S[2] c_S[4] c_nn &
 c_E[1] c_E[2] c_E[4] &
 c_r[1] c_r[2] c_r[3] &
 c_dam[1] c_dam[2] c_dam[3] c_dam[4] &
-c_e c_conr c_t c_k c_cp c_rho c_frac c_vol c_EP c_y &
+c_e c_t c_k c_cp c_rho c_frac c_vol c_EP c_y &
 c_Q[1] c_Q[2] c_Q[3]
 dump_modify dump_id first yes
 

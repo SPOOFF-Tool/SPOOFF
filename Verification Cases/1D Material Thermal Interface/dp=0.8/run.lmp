@@ -1,0 +1,102 @@
+####################################################################################################
+# MATERIAL PARAMETERS
+####################################################################################################
+variable E equal 100 # Young’s modulus
+variable nu equal 0.3 # Poisson ratio
+variable rho equal 1 # initial mass density
+variable q1 equal 0 # standard artificial viscosity linear coefficient
+variable q2 equal 0.0 # standard artificial viscosity quadratic coefficient
+variable hg equal 0.0 # hourglass control coefficient
+variable cp equal 1 # heat capacity of material 
+variable k equal 1 # thermal conductivity of material
+variable alpha equal 0 # thermal expansion of material
+variable T0 equal 1 # rest temperature of material  (irelavent as no thermal expansion)
+variable HP equal 0 # Heat Produced per unit mass
+####################################################################################################
+# INITIALIZE LAMMPS
+####################################################################################################
+dimension 2
+units si
+boundary sm sm p # simulation box boundaries
+atom_style spooff
+atom_modify map array
+comm_modify vel yes
+neigh_modify every 10 delay 0 check yes # re-build neighbor list every 10 steps
+newton off
+####################################################################################################
+# CREATE INITIAL GEOMETRY
+####################################################################################################
+variable l0 equal 0.8 # lattice spacing for creating particles
+lattice sq ${l0}
+region box block -2 12 -3 3 -0.1 0.1 units box
+create_box 1 box
+region left block -2 0 -3 3 -0.1 0.1 units box
+region fuel block 0 5 -3 3 -0.1 0.1 units box
+region right block 10 12 -3 3 -0.1 0.1 units box
+region cladding block 5 10 -3 3 -0.1 0.1 units box
+create_atoms 1 region box
+group left region left
+group right region right
+group fuel region fuel
+group cladding region cladding
+group tlsph type 1
+####################################################################################################
+# DISCRETIZATION PARAMETERS
+####################################################################################################
+variable h equal 3.01*${l0} # SPH smoothing kernel radius
+variable vol_one equal ${l0}^2 # volume of one particle -- assuming unit thickness
+variable skin equal ${h} # Verlet list range
+neighbor ${skin} bin
+set group all volume ${vol_one}
+set group all smd/mass/density ${rho}
+set group all diameter ${h} # set SPH kernel radius
+variable energy atom 1*(${rho}*${vol_one}*${cp}) # spacing adjusted temperature
+#set atom * sph/e v_energy
+set group all sph/e 0
+set group right sph/e v_energy
+fix vel_left_fix left spooff/setvel 0 0 0
+fix vel_right_fix right spooff/setvel 0 0 0
+fix temp_left_fix left spooff/settemp 0 
+fix temp_right_fix right spooff/settemp 0
+fix k_left_fix fuel spooff/setconductivity 1 0
+fix k_right_fix cladding spooff/setconductivity 10 0
+####################################################################################################
+# INTERACTION PHYSICS / MATERIAL MODEL
+####################################################################################################
+pair_style spooff/tlsph
+pair_coeff 1 1 *COMMON ${rho} ${E} ${nu} ${q1} ${q2} ${hg} ${cp} ${k} ${HP} &
+*STRENGTH_LINEAR &
+*EOS_THERMAL ${T0} ${alpha} &
+*FAILURE_MAX_PAIRWISE_STRAIN 5.69E-4 &
+*END
+
+####################################################################################################
+# TIME INTEGRATION
+####################################################################################################
+#fix dtfix tlsph spooff/adjust_dt 0.1 # dynamically adjust time increment every step doesn't account for heatflow timestep requirements
+fix integration_fix tlsph spooff/integrate_tlsph
+####################################################################################################
+# SPECIFY TRAJECTORY OUTPUT
+####################################################################################################
+compute S all spooff/tlsph/stress # Cauchy stress tensor
+compute E all spooff/tlsph/strain # Green-Lagrange strain tensor
+compute nn all spooff/tlsph/num/neighs # number of neighbors for each particle
+compute e all spooff/internal/energy
+
+compute dam all spooff/damage
+compute t all spooff/temperature 
+compute k all spooff/conductivity 
+compute Q all spooff/heatflux 
+dump dump_id all custom 1000 dump.LAMMPS id type x y z vx vy vz &
+c_S[1] c_S[2] c_S[4] c_nn &
+c_E[1] c_E[2] c_E[4] &
+c_e c_dam[1] c_t &
+c_Q[1] c_Q[2] c_Q[3]
+dump_modify dump_id first yes
+
+
+####################################################################################################
+# RUN SIMULATION
+####################################################################################################
+timestep 0.001
+run 40000
