@@ -1,0 +1,145 @@
+####################################################################################################
+# MATERIAL PARAMETERS   units in SI now
+####################################################################################################
+variable E equal 2.3E11 # Young’s modulus   Pa
+variable nu equal 0.314 # Poisson ratio
+variable rho equal 1.1E4 # initial mass density   kg/m3
+variable q1 equal 1 # standard artificial viscosity linear coefficient (0-1)
+variable q2 equal 1 # standard artificial viscosity quadratic coefficient (not actually implemented fully)
+variable hg equal 0.0 # hourglass control coefficient
+variable cp equal 3E2 # heat capacity of material   J/kgK (updated with fix later)
+variable k equal 3 # Thermal Conductivity of material   W/mK (updated with fix later)
+variable alpha equal 1E-5 # thermal expansion of material
+variable T0 equal 500 # rest temperature of material   K
+variable EF equal 5E3 # strain failure          #this is far higher to cause no fracture initialy (updated later with fix)
+variable HM equal 0 # heat per unit mass     (fixed later)
+####################################################################################################
+# INITIALIZE LAMMPS
+####################################################################################################
+dimension 2
+units si
+boundary sm sm p # simulation box boundaries - has to be periodic for 2D but we don't actually want it to be so this is adjusted for in the geometry
+atom_style spooff
+atom_modify map array
+comm_modify vel yes
+neigh_modify every 10 delay 0 check yes # re-build neighbor list every 10 steps
+newton off
+####################################################################################################
+# CREATE INITIAL GEOMETRY
+####################################################################################################
+variable l0 equal 0.1E-3 # lattice spacing for creating particles
+variable d0 equal ${l0}*0.5 # half distance
+variable h equal 2.01*${l0} # SPH smoothing kernel radius
+variable 2h equal 2*${h} 
+variable size equal 4.1E-3-${l0} #this is used to size the body of particles vs the temperature boundary 
+lattice sq ${l0}
+region box block -4.1E-3 4.1E-3 -4.1E-3 4.1E-3 -${2h} ${2h} units box    #need to make sure that particles don't interact in z through periodic boundary
+create_box 1 box
+region cyl cylinder z 0 0 4.1E-3 -0 ${d0} units box  #the d0 value makes sure only one thick of atoms is generated
+create_atoms 1 region cyl
+region mid cylinder z 0 0 ${size} -0 10E-3 units box      
+region out cylinder z 0 0 ${size} -0 10E-3 units box side out   #outer selection if using constant temperature (includes edge of pellet) 
+group mid region mid
+group out region out
+group cyl region cyl
+group tlsph type 1
+
+####################################################################################################
+# DISCRETIZATION PARAMETERS
+####################################################################################################
+variable h equal 2.01*${l0} # SPH smoothing kernel radius
+variable vol_one equal ${l0}^2 # volume of one particle -- assuming unit thickness
+variable vol_pellet equal 3.14*4.1E-3^2 # volume of pellet -- assuming unit thickness
+variable scale_factor equal ${vol_pellet}/${vol_one}
+variable skin equal ${h} # Verlet list range
+variable energy equal 500*(${rho}*${vol_one}*${cp}) # adjusted inital temperature (set to 500)
+neighbor ${skin} bin
+set group all smd/contact/radius ${d0} #not actualy used, need for when Hertz contact force is added
+set group all volume ${vol_one}
+set group all smd/mass/density ${rho}
+set group all diameter ${h} # set SPH kernel radius
+set group all sph/e ${energy}
+fix temp_out_fix out spooff/settemp 0	   #fixes outer temperature. changing 0 value will make temperature have constant rate of change of that value.
+fix cp mid spooff/setspecificheat 1 1         #this sets a temperature varying specific heat based on Matpro UO2
+fix K mid spooff/setconductivity 1 1	   #this sets a temperature varying conductivity based on Matpro UO2
+
+#this just adds a file with the set up information
+write_data data
+
+####################################################################################################
+# TIME INTEGRATION
+####################################################################################################
+#fix dtfix tlsph spooff/adjust_dt 0.01 # dynamically adjust time increment every step   - I turned this off as it doesn't account for the temperature time step limit.
+fix integration_fix tlsph spooff/integrate_tlsph 
+
+####################################################################################################
+# SPECIFY TRAJECTORY OUTPUT
+####################################################################################################
+compute S all spooff/tlsph/stress_cylindrical # Cauchy stress tensor - cylindrical co-ordinate form
+compute E all spooff/tlsph/strain_cylindrical # Green-Lagrange strain tensor - cylindrical co-ordinate form
+compute nn all spooff/tlsph/num/neighs # number of neighbors for each particle
+compute e all spooff/internal/energy #internal thermal energy
+compute r all spooff/cylindrical #cylindrical co-ords r theta z
+compute conr all spooff/contact/radius # particle contact radius
+compute rho all spooff/rho # density (doesn't update)
+compute vol all spooff/vol # particle volume (doesn't update)
+compute dam all spooff/damage # Calculates 4 damage values:
+#1 the percentage of lost neigbhors (0-1)
+#2 the average bond degredation (0-1)
+#3 the average energy of still connected bonds (only relevant to some failure models)
+#4 the actual ascociated damage value (only relevant to track for damage onset based on some failure models)
+compute t all spooff/temperature #temperature
+compute k all spooff/conductivity #conductivity
+compute cp all spooff/specificheat #specific heat
+compute Q all spooff/heatflux_cylindrical # heatflux - cylindrical co-ordinate form
+compute frac all spooff/failure # calculates the strain failure values per particle
+compute EP all spooff/plastic/strain #potential internal energy - not really used for anything just the work done
+compute y all spooff/youngs
+dump dump_id all custom 1000 dump.LAMMPS id type x y z vx vy vz &
+c_S[1] c_S[2] c_S[4] c_nn &
+c_E[1] c_E[2] c_E[4] &
+c_r[1] c_r[2] c_r[3] &
+c_dam[1] c_dam[2] c_dam[3] c_dam[4] &
+c_e c_conr c_t c_k c_cp c_rho c_frac c_vol c_EP c_y &
+c_Q[1] c_Q[2] c_Q[3]
+dump_modify dump_id first yes
+
+#this file is for the bond information. can be imported to ovito throgh the "load trajectory" modification - low damage values e.g 9.67e-5 getting read as 9.67 for some reason?
+#file also causing early crashes if the system breaks up too much - needs updating with more particle checks to avoid memory errors
+compute pair all damage/local patom1 patom2 damage degredation energy
+dump dump2 all local 1000 dump2.LAMMPS c_pair[*]
+dump_modify  dump2 colname 1 patom1 colname 2 patom2 colname 3 damage colname 4 degredation colname 5 energy
+####################################################################################################
+# RUN SIMULATION
+####################################################################################################
+
+
+fix youngs all spooff/setyoungs 1 1 #set to UO2 thermal dependant youngs modulus from matpro
+
+#lots of the pair style values are over written by the fixes to allow temperature dependant properties and easy turing on and off.
+pair_style hybrid/overlay  spooff/tlsph spooff/thermal
+pair_coeff 1 1 spooff/tlsph *COMMON ${rho} ${E} ${nu} ${q1} ${q2} ${hg} ${cp} ${k} ${HM} & 
+*STRENGTH_LINEAR &
+*EOS_THERMAL ${T0} ${alpha} &
+*FAILURE_MAX_PRINCIPAL_STRESS ${EF} &
+*THERMAL_OFF &
+*END
+pair_coeff 1 1 spooff/thermal
+#"FAILURE_MAX_PRINCIPAL_STRESS" uses a stress failure condition but it still takes it as a strain vaule for consitency with the fix method
+
+#sim has 3 stages - equalize temperature - equalize stress - calculate damage. This gets past the time step issue that the mechanical time step is far smaller than the thermal
+
+fix heatgen all spooff/setheatgen 11E4 0 # sets heat generation for whole pellet to 60 W/g 
+
+fix fracstrength all spooff/setfailure 1E4 0 0 0 #this set the fracture strain very high so nothing fractures while the large time steps are taken and the system is brough to its new equilibrium stress
+fix velocity all spooff/setvel 0 0 0 #stops the mechanical stress evolving so that a faster time step can be used
+timestep 0.001    # fixed this based on time step limit calc for thermal sim. Much faster time step than for the mechanical being on so lets the system reach its temperature
+run 50000
+
+unfix velocity # allow motion so stress can evolve
+fix dtfix tlsph spooff/adjust_dt 0.01 # dynamically adjust time increment every step for the mechanical evolution (far slower time step)
+run 400000
+
+fix fracstrength all spooff/setfailure 1 1 0 0 #this changes it to the matpro fracture strength (converted to strain) estimate for UO2 so that the fracture can be assesed now the stress is at rest (this avoids shock issues from the large deformation)
+run 200000
+

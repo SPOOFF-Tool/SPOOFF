@@ -1,0 +1,43 @@
+"Percentage_Mass","Size","Test","Order","Order2"
+18.22281167,"<0.125mm","Studsvik Rod 191",1,1
+12.4137931,"0.125mm-0.25mm","Studsvik Rod 191",2,1
+16.07427056,"0.25mm-0.5mm","Studsvik Rod 191",3,1
+21.64456233,"0.5mm-1mm","Studsvik Rod 191",4,1
+19.49602122,"1mm-2mm","Studsvik Rod 191",5,1
+12.4137931,"2mm-4mm","Studsvik Rod 191",6,1
+0,">4mm","Studsvik Rod 191",7,1
+31.59151194,"<0.125mm","Studsvik Rod 192",1,2
+11.14058355,"0.125mm-0.25mm","Studsvik Rod 192",2,2
+12.81167109,"0.25mm-0.5mm","Studsvik Rod 192",3,2
+14.32360743,"0.5mm-1mm","Studsvik Rod 192",4,2
+18.70026525,"1mm-2mm","Studsvik Rod 192",5,2
+11.53846154,"2mm-4mm","Studsvik Rod 192",6,2
+0.079575597,">4mm","Studsvik Rod 192",7,2
+18.22281167,"<0.125mm","Studsvik Rod 193",1,3
+10.42440318,"0.125mm-0.25mm","Studsvik Rod 193",2,3
+13.36870027,"0.25mm-0.5mm","Studsvik Rod 193",3,3
+16.94960212,"0.5mm-1mm","Studsvik Rod 193",4,3
+19.25729443,"1mm-2mm","Studsvik Rod 193",5,3
+19.81432361,"2mm-4mm","Studsvik Rod 193",6,3
+2.148541114,">4mm","Studsvik Rod 193",7,3
+0.557029178,"<0.125mm","Studsvik Rod 196",1,4
+0.557029178,"0.125mm-0.25mm","Studsvik Rod 196",2,4
+0.397877984,"0.25mm-0.5mm","Studsvik Rod 196",3,4
+0.477453581,"0.5mm-1mm","Studsvik Rod 196",4,4
+0.795755968,"1mm-2mm","Studsvik Rod 196",5,4
+12.17506631,"2mm-4mm","Studsvik Rod 196",6,4
+85.30503979,">4mm","Studsvik Rod 196",7,4
+0.875331565,"<0.125mm","Studsvik Rod 198",1,5
+0.795755968,"0.125mm-0.25mm","Studsvik Rod 198",2,5
+0.954907162,"0.25mm-0.5mm","Studsvik Rod 198",3,5
+0.795755968,"0.5mm-1mm","Studsvik Rod 198",4,5
+1.352785146,"1mm-2mm","Studsvik Rod 198",5,5
+28.09018568,"2mm-4mm","Studsvik Rod 198",6,5
+67.4801061,">4mm","Studsvik Rod 198",7,5
+0,"<0.125mm","SPOOFF",1,NA
+0,"0.125mm-0.25mm","SPOOFF",2,NA
+0,"0.25mm-0.5mm","SPOOFF",3,NA
+3.62412261853602,"0.5mm-1mm","SPOOFF",4,NA
+4.69846726829967,"1mm-2mm","SPOOFF",5,NA
+2.39220742014038,"2mm-4mm","SPOOFF",6,NA
+89.2852026930239,">4mm","SPOOFF",7,NA
