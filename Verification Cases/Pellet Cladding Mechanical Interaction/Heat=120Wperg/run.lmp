@@ -155,30 +155,23 @@ pair_coeff 2 2 spooff/hertz 0.5 0.1 0.5
 pair_coeff 1 2 spooff/hertz 1 0.1 0.5
 pair_coeff 1 2 spooff/thermal
 
-read_restart restart.file
-
-fix fracstrength cyl spooff/setfailure 1 1 0 0 #this set the fracture strain very high so nothing fractures while the large time steps are taken and the system is brough to its new equilibrium stress
-fix fracstrength2 clad spooff/setfailure 1 2 0 0 #this set the fracture strain very high so nothing fractures while the large time steps are taken and the system is brough to its new equilibrium stress
-run 200000
-
 
 #sim has 3 stages - equalize temperature - equalize stress - calculate damage. This gets past the time step issue that the mechanical time step is far smaller than the thermal
 
 fix heatgen cyl spooff/setheatgen 12E4 0 # sets heat generation for whole pellet to 60 W/g 
 
 fix fracstrength all spooff/setfailure 1E5 0 0 0 #this set the fracture strain very high so nothing fractures while the large time steps are taken and the system is brough to its new equilibrium stress
-#fix fracstrength2 clad spooff/setfailure 1 2 0 0 #this set the fracture strain very high so nothing fractures while the large time steps are taken and the system is brough to its new equilibrium stress
+fix fracstrength2 clad spooff/setfailure 1 2 0 0 #this set the fracture strain very high so nothing fractures while the large time steps are taken and the system is brough to its new equilibrium stress
 fix velocity all spooff/setvel 0 0 0 #stops the mechanical stress evolving so that a faster time step can be used
 timestep 0.001    # fixed this based on time step limit calc for thermal sim. Much faster time step than for the mechanical being on so lets the system reach its temperature
-#run 50000
+run 50000
 
 unfix velocity # allow motion so stress can evolve
 fix dtfix tlsph spooff/adjust_dt 0.01 # dynamically adjust time increment every step for the mechanical evolution (far slower time step)
-#run 400000
+run 400000
 
-write_restart restart.file
 
 fix fracstrength cyl spooff/setfailure 1 1 0 0 #this set the fracture strain very high so nothing fractures while the large time steps are taken and the system is brough to its new equilibrium stress
 fix fracstrength2 clad spooff/setfailure 1 2 0 0 #this set the fracture strain very high so nothing fractures while the large time steps are taken and the system is brough to its new equilibrium stress
-#run 200000
+run 200000
 
